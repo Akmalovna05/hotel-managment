@@ -1,0 +1,122 @@
+{
+  "info": {
+    "name": "HotelOS API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth Login",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"reception\",\n  \"password\": \"reception123\"\n}"
+        },
+        "url": "{{baseUrl}}/api/auth/login"
+      }
+    },
+    {
+      "name": "Check In",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookingReference\": \"BK-2026-001\"\n}"
+        },
+        "url": "{{baseUrl}}/api/reception/check-in"
+      }
+    },
+    {
+      "name": "Room Availability",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{token}}" }],
+        "url": "{{baseUrl}}/api/reception/rooms/availability"
+      }
+    },
+    {
+      "name": "Check Out",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"bookingReference\": \"BK-2026-001\"\n}"
+        },
+        "url": "{{baseUrl}}/api/reception/check-out"
+      }
+    },
+    {
+      "name": "Complete Cleaning Task",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomNumber\": \"302\",\n  \"staffName\": \"Maria\"\n}"
+        },
+        "url": "{{baseUrl}}/api/housekeeping/tasks/complete"
+      }
+    },
+    {
+      "name": "Create Maintenance Ticket",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomNumber\": \"201\",\n  \"category\": \"HVAC\",\n  \"description\": \"AC not cooling\",\n  \"severity\": 4,\n  \"guestImpact\": true\n}"
+        },
+        "url": "{{baseUrl}}/api/maintenance/tickets"
+      }
+    },
+    {
+      "name": "Assign Maintenance Ticket",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"ticketId\": 1,\n  \"technician\": \"Alex\"\n}"
+        },
+        "url": "{{baseUrl}}/api/maintenance/tickets/assign"
+      }
+    },
+    {
+      "name": "Create Room Service Order",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" },
+          { "key": "Authorization", "value": "Bearer {{token}}" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"roomNumber\": \"101\",\n  \"bookingId\": 1,\n  \"items\": [{ \"name\": \"Club Sandwich\", \"quantity\": 2, \"unitPrice\": 15.50 }]\n}"
+        },
+        "url": "{{baseUrl}}/api/roomservice/orders"
+      }
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "token", "value": "" }
+  ]
+}
