@@ -1,0 +1,10 @@
+{
+  "name": "hotelos",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix shared && npm install --prefix gateway && npm install --prefix services/reception && npm install --prefix services/housekeeping && npm install --prefix services/maintenance && npm install --prefix services/room-service && npm install --prefix frontend",
+    "docker:up": "docker compose up --build",
+    "docker:infra": "docker compose up postgres rabbitmq -d"
+  }
+}

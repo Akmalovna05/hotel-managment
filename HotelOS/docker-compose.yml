@@ -1,0 +1,131 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: hotelos
+      POSTGRES_PASSWORD: hotelos_secret
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hotelos"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: hotelos
+      RABBITMQ_DEFAULT_PASS: hotelos_secret
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build:
+      context: .
+      dockerfile: gateway/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      JWT_SECRET: hotelos_jwt_dev_secret_change_in_production
+      RABBITMQ_URL: amqp://hotelos:hotelos_secret@rabbitmq:5672
+      DATABASE_URL: postgresql://hotelos:hotelos_secret@postgres:5432/hotelos_gateway
+      RECEPTION_SERVICE_URL: http://reception:3001
+      HOUSEKEEPING_SERVICE_URL: http://housekeeping:3002
+      MAINTENANCE_SERVICE_URL: http://maintenance:3003
+      ROOM_SERVICE_URL: http://room-service:3004
+      CORS_ORIGIN: http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      reception:
+        condition: service_started
+
+  reception:
+    build:
+      context: .
+      dockerfile: services/reception/Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      PORT: 3001
+      DATABASE_URL: postgresql://hotelos:hotelos_secret@postgres:5432/hotelos_reception
+      RABBITMQ_URL: amqp://hotelos:hotelos_secret@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  housekeeping:
+    build:
+      context: .
+      dockerfile: services/housekeeping/Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      PORT: 3002
+      DATABASE_URL: postgresql://hotelos:hotelos_secret@postgres:5432/hotelos_housekeeping
+      RABBITMQ_URL: amqp://hotelos:hotelos_secret@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  maintenance:
+    build:
+      context: .
+      dockerfile: services/maintenance/Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      PORT: 3003
+      DATABASE_URL: postgresql://hotelos:hotelos_secret@postgres:5432/hotelos_maintenance
+      RABBITMQ_URL: amqp://hotelos:hotelos_secret@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  room-service:
+    build:
+      context: .
+      dockerfile: services/room-service/Dockerfile
+    ports:
+      - "3004:3004"
+    environment:
+      PORT: 3004
+      DATABASE_URL: postgresql://hotelos:hotelos_secret@postgres:5432/hotelos_roomservice
+      RABBITMQ_URL: amqp://hotelos:hotelos_secret@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:80"
+    depends_on:
+      - gateway
+
+volumes:
+  postgres_data:

@@ -1,0 +1,11 @@
+FROM node:20-alpine
+WORKDIR /app
+COPY shared ./shared
+WORKDIR /app/shared
+RUN npm install --omit=dev
+WORKDIR /app/services/reception
+COPY services/reception/package.json ./
+RUN npm install --omit=dev
+COPY services/reception ./
+EXPOSE 3001
+CMD ["node", "src/server.js"]

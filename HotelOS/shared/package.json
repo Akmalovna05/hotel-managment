@@ -1,0 +1,9 @@
+{
+  "name": "@hotelos/shared",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "dependencies": {
+    "amqplib": "^0.10.4"
+  }
+}
